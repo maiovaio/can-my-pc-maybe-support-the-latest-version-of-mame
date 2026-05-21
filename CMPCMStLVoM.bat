@@ -1,11 +1,11 @@
 @echo off
-:: this makes seeing the current state of variables much easier with !variable_name!
+:: this makes seeing the current state of variables much easier with !variable_name! also i stopped using it for anything
 setlocal enabledelayedexpansion
 :: Setting variables. btw ASuccess and AFail where attempted solutions to solve a problem (oversight i should have saw) that worked anyway (not for fixing the oversight) so i kept them
 set "ASuccess=Passed windows version check [Stage 1/4.1]"
 set "AFail=Your OS is too old to run the latest version of MAME"
 set "="
-set "CI64DOWNDIR=%~dp0Coreinfo64.exe"
+set "CI64DOWNDIR=%TMP%\Coreinfo64.exe"
 :: this is pretty self-explanitory don't you think?
 echo ______________________________________________________________ 
 echo ^|                                                            ^|
@@ -34,7 +34,7 @@ if 10010240 LEQ %%D%%E%%F (echo %ASuccess%) else (echo %AFail% & EXIT /B 1))
 :: The Magic Sauceⓒ also this makes myDownloadJob and downloads using it
 bitsadmin /create myDownloadJob && bitsadmin /transfer myDownloadJob https://github.com/maiovaio/does-my-pc-maybe-support-the-latest-mame/raw/refs/heads/main/Coreinfo64.exe %CI64DOWNDIR% & bitsadmin /complete myDownloadJob && echo Downloaded Coreinfo64 successfully [Stage 2/4]
 :: Mark as much as i love that you made this, why? (I'm referncing the question i asked below in the filename)
-Coreinfo64 -f > %TMP%\coreinfo64.txt && echo Made temporary TXT with CPU specifications [Stage 2/4]
+%TMP%\Coreinfo64.exe -f > %TMP%\coreinfo64.txt && echo Made temporary TXT with CPU specifications [Stage 2/4]
 :: checking if the cpu supports the full x86-64-v2 specification
 find "*" %TMP%\coreinfo64.txt | find "CX16" && find "*" %TMP%\coreinfo64.txt | findstr "\<SSE3\>" && find "*" %TMP%\coreinfo64.txt | find "SSE4.1" && find "*" %TMP%\coreinfo64.txt | find "SSE4.2" && find "*" %TMP%\coreinfo64.txt | find "POPCNT" && find "*" %TMP%\coreinfo64.txt | find "LAHF-SAHF" && find "*" %TMP%\coreinfo64.txt | find "SSSE3" && echo Passed x86-64 level check [Stage 2.1/4] || (echo Your CPU doesn't support the full x86-64-v2 specification 
 EXIT /B 1)
@@ -49,3 +49,4 @@ for /f "tokens=1-7 delims=,MB " %%A in ('findstr /C:"Total Physical Memory" %TMP
 echo Cleaning up
 del %TMP%\sysinfo.txt
 del %TMP%\coreinfo64.txt
+del %TMP%\coreinfo64.exe
